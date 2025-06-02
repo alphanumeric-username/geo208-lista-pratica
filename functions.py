@@ -1,6 +1,8 @@
 # NBVAL_IGNORE_OUTPUT
 
 
+# NBVAL_IGNORE_OUTPUT
+
 def plot(a, title=None):
     # Some useful definitions for plotting if nbl is set to any other value than zero
     shape_pad = np.array(shape) + 2 * nbl
@@ -22,8 +24,6 @@ def plot(a, title=None):
         snapshot = factor * (count + 1)
         ax.imshow(np.transpose(a.data[snapshot, :, :]), cmap="seismic", vmin=-amax,
                   vmax=+amax, extent=plt_extent)
-        # ax.plot(model.domain_size[0] * .5, 10, 'red', linestyle='None', marker='*',
-        #         markersize=8, label="Source")
         ax.plot(src.coordinates.data[0, 0], src.coordinates.data[0, 1], 'red', linestyle='None', marker='*',
                 markersize=8, label="Source")
         ax.grid()
