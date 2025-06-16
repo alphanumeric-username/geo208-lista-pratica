@@ -73,3 +73,56 @@ def plot_interactive_wavefield(wavefield, geometry, title=None):
     anim = animation.FuncAnimation(fig=fig, func=update, frames=95)
     anim_html = anim.to_jshtml()
     return HTML(anim_html)
+
+
+def plot_shotrecords(recs, model, t0, tn, colorbar=True, titles=None, perc=100):
+    ncols = min(3, len(recs))
+    nrows = 0
+    if ncols < len(recs):
+        nrows = 1
+    else:
+        nrows = int(np.ceil(len(recs)/ncols))
+
+    fig, axes = plt.subplots(nrows, ncols, figsize=(5*ncols, 4 * nrows), sharex=True)
+    
+    if nrows == 1 and ncols == 1:
+        axes = [[axes]]
+    elif nrows == 1:
+        axes = [axes]
+
+    scale = np.max(recs[0])
+    for rec in recs:
+        scale = max(scale, np.max(rec))
+    scale /= 10
+    
+    is_first = True
+    last_plot = None
+    for i in range(nrows):
+        for j in range(ncols):
+            idx = j + i * ncols
+            rec = recs[idx]
+            title = titles[idx]
+            ax = axes[i][j]
+
+            extent = [1e-3*model.origin[0], 1e-3*(model.origin[0] + model.domain_size[0]),
+                    1e-3*tn, 1e-3*t0]
+
+            plot = ax.imshow(rec, vmin=-scale, vmax=scale, cmap="gray", extent=extent)
+            # perc_val = np.percentile(np.array(rec), perc)
+            # perc_mask = (rec <= perc_val)
+            # plot = plt.imshow(rec * perc_mask + perc_val*(1 - perc_mask), cmap="gray", extent=extent)
+            ax.set_xlabel('X position (km)')
+            is_first and ax.set_ylabel('Time (s)')
+            is_first = False
+            ax.set_title(title)
+            # if title:
+            #     plt.title(title)
+            last_plot = plot
+            last_ax = ax
+
+        # Create aligned colorbar on the right
+        if colorbar:
+            divider = make_axes_locatable(last_ax)
+            cax = divider.append_axes("right", size="5%", pad=0.05)
+            plt.colorbar(last_plot, cax=cax)
+        plt.show()
